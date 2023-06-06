@@ -14080,13 +14080,15 @@ function run() {
                 return;
             }
             const filenames = files.map((file) => file.filename);
-            const reviewers = getReviewers(filenames, config);
-            core.info(`Reviewers: ${reviewers}`);
+            const { users, teams } = getReviewers(filenames, config);
+            core.info(`User reviewers: ${users}`);
+            core.info(`Team reviewers: ${teams}`);
             octokit.rest.pulls.requestReviewers({
                 owner: owner,
                 repo: repo,
                 pull_number: number,
-                reviewers: Array.from(reviewers),
+                reviewers: Array.from(users),
+                team_reviewers: Array.from(teams),
             });
         }
         catch (error) {
@@ -14112,28 +14114,37 @@ function validateByIgnore(ignore) {
     return !isIgnoredByTitle;
 }
 function getReviewers(filenames, config) {
-    const reviewers = new Set();
+    const users = new Set();
+    const teams = new Set();
     config.reviewers
         .filter((reviewer) => {
-        reviewer.name !== github.context.actor;
+        return reviewer.name !== github.context.actor;
     })
         .forEach((reviewer) => {
-        var _a;
         if (!reviewer.paths) {
-            console.log('path is empty');
             // if path is empty, always add reviewer
-            reviewers.add(reviewer.name);
+            if (reviewer.team) {
+                teams.add(reviewer.name);
+            }
+            else {
+                users.add(reviewer.name);
+            }
             return true;
         }
-        (_a = reviewer.paths) === null || _a === void 0 ? void 0 : _a.some((path) => {
+        reviewer.paths.some((path) => {
             const matchedFiles = filenames.filter(minimatch_1.minimatch.filter(path, { matchBase: true }));
             if (matchedFiles.length > 0) {
-                reviewers.add(reviewer.name);
+                if (reviewer.team) {
+                    teams.add(reviewer.name);
+                }
+                else {
+                    users.add(reviewer.name);
+                }
                 return true;
             }
         });
     });
-    return Array.from(reviewers);
+    return { users: Array.from(users), teams: Array.from(teams) };
 }
 run();
 
