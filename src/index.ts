@@ -27,12 +27,6 @@ async function run() {
       return;
     }
 
-    const configFilePath = core.getInput('config-file-path');
-    const config = load(readFileSync(configFilePath, 'utf8')) as Config;
-    if (config.ignore && !validateByIgnore(config.ignore)) {
-      return;
-    }
-
     const token = core.getInput('token');
     const octokit = github.getOctokit(token);
     const { owner, repo, number } = github.context.issue;
@@ -43,6 +37,12 @@ async function run() {
     });
     if (data.state !== 'open') {
       core.info('This pull request is not open');
+      return;
+    }
+
+    const configFilePath = core.getInput('config-file-path');
+    const config = load(readFileSync(configFilePath, 'utf8')) as Config;
+    if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
       return;
     }
 
@@ -76,14 +76,13 @@ async function run() {
   }
 }
 
-function validateByIgnore(ignore: Ignore): boolean {
+function validateByIgnore(ignore: Ignore, title: string): boolean {
   if (ignore.authors?.includes(github.context.actor)) {
     core.info(`Ignored author: ${github.context.actor}`);
     return false;
   }
 
   let isIgnoredByTitle = false;
-  const title = github.context.payload.pull_request?.title;
   ignore.titles?.some((ignoreTitle) => {
     if (title.includes(ignoreTitle)) {
       core.info(`Ignored title: ${title}`);

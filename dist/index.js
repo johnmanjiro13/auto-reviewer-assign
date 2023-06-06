@@ -14050,11 +14050,6 @@ function run() {
                 core.setFailed(`This action only supports pull_request event`);
                 return;
             }
-            const configFilePath = core.getInput('config-file-path');
-            const config = (0, js_yaml_1.load)((0, fs_1.readFileSync)(configFilePath, 'utf8'));
-            if (config.ignore && !validateByIgnore(config.ignore)) {
-                return;
-            }
             const token = core.getInput('token');
             const octokit = github.getOctokit(token);
             const { owner, repo, number } = github.context.issue;
@@ -14065,6 +14060,11 @@ function run() {
             });
             if (data.state !== 'open') {
                 core.info('This pull request is not open');
+                return;
+            }
+            const configFilePath = core.getInput('config-file-path');
+            const config = (0, js_yaml_1.load)((0, fs_1.readFileSync)(configFilePath, 'utf8'));
+            if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
                 return;
             }
             const { data: { files }, } = yield octokit.rest.repos.compareCommits({
@@ -14094,15 +14094,14 @@ function run() {
         }
     });
 }
-function validateByIgnore(ignore) {
-    var _a, _b, _c;
+function validateByIgnore(ignore, title) {
+    var _a, _b;
     if ((_a = ignore.authors) === null || _a === void 0 ? void 0 : _a.includes(github.context.actor)) {
         core.info(`Ignored author: ${github.context.actor}`);
         return false;
     }
     let isIgnoredByTitle = false;
-    const title = (_b = github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.title;
-    (_c = ignore.titles) === null || _c === void 0 ? void 0 : _c.some((ignoreTitle) => {
+    (_b = ignore.titles) === null || _b === void 0 ? void 0 : _b.some((ignoreTitle) => {
         if (title.includes(ignoreTitle)) {
             core.info(`Ignored title: ${title}`);
             isIgnoredByTitle = true;
