@@ -14067,13 +14067,11 @@ function run() {
                 core.info('This pull request is not open');
                 return;
             }
-            const baseRef = data.base.ref;
-            const headRef = data.head.ref;
             const { data: { files }, } = yield octokit.rest.repos.compareCommits({
                 owner: owner,
                 repo: repo,
-                base: baseRef,
-                head: headRef,
+                base: data.base.ref,
+                head: data.head.ref,
             });
             if (!files) {
                 core.info('No files changed');
@@ -14129,7 +14127,7 @@ function getReviewers(filenames, config) {
             else {
                 users.add(reviewer.name);
             }
-            return true;
+            return;
         }
         reviewer.paths.some((path) => {
             const matchedFiles = filenames.filter(minimatch_1.minimatch.filter(path, { matchBase: true }));
