@@ -1,0 +1,13 @@
+name: auto-assign
+on:
+  pull_request:
+    types: opned
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

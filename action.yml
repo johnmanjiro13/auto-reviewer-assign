@@ -1,0 +1,13 @@
+name: Automatically assign reviewers to pull requests
+description: Automatically assign reviewers to pull requests
+inputs:
+  token:
+    description: 'The GitHub token to use'
+    required: true
+  config-file-path:
+    description: 'The path to the configuration file'
+    required: false
+    default: '.github/auto-assign.yml'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
