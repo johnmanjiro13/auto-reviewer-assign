@@ -100,9 +100,7 @@ function getReviewers(
   const users = new Set<string>();
   const teams = new Set<string>();
   config.reviewers
-    .filter((reviewer) => {
-      return reviewer.name !== github.context.actor;
-    })
+    .filter((reviewer) => reviewer.name !== github.context.actor)
     .forEach((reviewer) => {
       if (!reviewer.paths) {
         // if path is empty, always add reviewer

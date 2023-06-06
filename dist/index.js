@@ -14114,9 +14114,7 @@ function getReviewers(filenames, config) {
     const users = new Set();
     const teams = new Set();
     config.reviewers
-        .filter((reviewer) => {
-        return reviewer.name !== github.context.actor;
-    })
+        .filter((reviewer) => reviewer.name !== github.context.actor)
         .forEach((reviewer) => {
         if (!reviewer.paths) {
             // if path is empty, always add reviewer
