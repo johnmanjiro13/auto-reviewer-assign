@@ -1,7 +1,7 @@
 name: auto-reviewer-assign
 on:
   pull_request:
-    types: opned
+    types: opened
 
 jobs:
   auto-assign:
