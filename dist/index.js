@@ -14046,44 +14046,44 @@ const fs_1 = __nccwpck_require__(7147);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (github.context.eventName !== 'pull_request') {
-                core.setFailed(`This action only supports pull_request event`);
+            if (github.context.eventName !== "pull_request") {
+                core.setFailed("This action only supports pull_request event");
                 return;
             }
-            const token = core.getInput('token');
+            const token = core.getInput("token");
             const octokit = github.getOctokit(token);
             const { owner, repo, number } = github.context.issue;
             const { data } = yield octokit.rest.pulls.get({
-                owner: owner,
-                repo: repo,
+                owner,
+                repo,
                 pull_number: number,
             });
-            if (data.state !== 'open') {
-                core.info('This pull request is not open');
+            if (data.state !== "open") {
+                core.info("This pull request is not open");
                 return;
             }
-            const configFilePath = core.getInput('config-file-path');
-            const config = (0, js_yaml_1.load)((0, fs_1.readFileSync)(configFilePath, 'utf8'));
+            const configFilePath = core.getInput("config-file-path");
+            const config = (0, js_yaml_1.load)((0, fs_1.readFileSync)(configFilePath, "utf8"));
             if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
                 return;
             }
             const { data: { files }, } = yield octokit.rest.repos.compareCommits({
-                owner: owner,
-                repo: repo,
+                owner,
+                repo,
                 base: data.base.ref,
                 head: data.head.ref,
             });
             if (!files) {
-                core.info('No files changed');
+                core.info("No files changed");
                 return;
             }
             const filenames = files.map((file) => file.filename);
             const { users, teams } = getReviewers(filenames, config);
-            core.info(`User reviewers: ${users}`);
-            core.info(`Team reviewers: ${teams}`);
-            octokit.rest.pulls.requestReviewers({
-                owner: owner,
-                repo: repo,
+            core.info(`User reviewers: ${users.join(",")}`);
+            core.info(`Team reviewers: ${teams.join(",")}`);
+            yield octokit.rest.pulls.requestReviewers({
+                owner,
+                repo,
                 pull_number: number,
                 reviewers: Array.from(users),
                 team_reviewers: Array.from(teams),
@@ -14107,6 +14107,7 @@ function validateByIgnore(ignore, title) {
             isIgnoredByTitle = true;
             return true;
         }
+        return false;
     });
     return !isIgnoredByTitle;
 }
@@ -14137,11 +14138,12 @@ function getReviewers(filenames, config) {
                 }
                 return true;
             }
+            return false;
         });
     });
     return { users: Array.from(users), teams: Array.from(teams) };
 }
-run();
+run().then(() => { }, () => { });
 
 
 /***/ }),

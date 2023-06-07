@@ -1,8 +1,8 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-import { minimatch } from 'minimatch';
-import { load } from 'js-yaml';
-import { readFileSync } from 'fs';
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import { minimatch } from "minimatch";
+import { load } from "js-yaml";
+import { readFileSync } from "fs";
 
 type Reviewer = {
   name: string;
@@ -22,26 +22,26 @@ type Config = {
 
 async function run() {
   try {
-    if (github.context.eventName !== 'pull_request') {
-      core.setFailed(`This action only supports pull_request event`);
+    if (github.context.eventName !== "pull_request") {
+      core.setFailed("This action only supports pull_request event");
       return;
     }
 
-    const token = core.getInput('token');
+    const token = core.getInput("token");
     const octokit = github.getOctokit(token);
     const { owner, repo, number } = github.context.issue;
     const { data } = await octokit.rest.pulls.get({
-      owner: owner,
-      repo: repo,
+      owner,
+      repo,
       pull_number: number,
     });
-    if (data.state !== 'open') {
-      core.info('This pull request is not open');
+    if (data.state !== "open") {
+      core.info("This pull request is not open");
       return;
     }
 
-    const configFilePath = core.getInput('config-file-path');
-    const config = load(readFileSync(configFilePath, 'utf8')) as Config;
+    const configFilePath = core.getInput("config-file-path");
+    const config = load(readFileSync(configFilePath, "utf8")) as Config;
     if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
       return;
     }
@@ -49,29 +49,29 @@ async function run() {
     const {
       data: { files },
     } = await octokit.rest.repos.compareCommits({
-      owner: owner,
-      repo: repo,
+      owner,
+      repo,
       base: data.base.ref,
       head: data.head.ref,
     });
     if (!files) {
-      core.info('No files changed');
+      core.info("No files changed");
       return;
     }
     const filenames = files.map((file) => file.filename);
     const { users, teams } = getReviewers(filenames, config);
-    core.info(`User reviewers: ${users}`);
-    core.info(`Team reviewers: ${teams}`);
-    octokit.rest.pulls.requestReviewers({
-      owner: owner,
-      repo: repo,
+    core.info(`User reviewers: ${users.join(",")}`);
+    core.info(`Team reviewers: ${teams.join(",")}`);
+    await octokit.rest.pulls.requestReviewers({
+      owner,
+      repo,
       pull_number: number,
       reviewers: Array.from(users),
       team_reviewers: Array.from(teams),
     });
   } catch (error) {
     core.setFailed(
-      error instanceof Error ? error.message : JSON.stringify(error)
+      error instanceof Error ? error.message : JSON.stringify(error),
     );
   }
 }
@@ -89,13 +89,14 @@ function validateByIgnore(ignore: Ignore, title: string): boolean {
       isIgnoredByTitle = true;
       return true;
     }
+    return false;
   });
   return !isIgnoredByTitle;
 }
 
 function getReviewers(
   filenames: string[],
-  config: Config
+  config: Config,
 ): { users: string[]; teams: string[] } {
   const users = new Set<string>();
   const teams = new Set<string>();
@@ -113,7 +114,7 @@ function getReviewers(
       }
       reviewer.paths.some((path) => {
         const matchedFiles = filenames.filter(
-          minimatch.filter(path, { matchBase: true })
+          minimatch.filter(path, { matchBase: true }),
         );
         if (matchedFiles.length > 0) {
           if (reviewer.team) {
@@ -123,9 +124,10 @@ function getReviewers(
           }
           return true;
         }
+        return false;
       });
     });
   return { users: Array.from(users), teams: Array.from(teams) };
 }
 
-run();
+run().then(() => {}, () => {});
