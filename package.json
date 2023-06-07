@@ -1,5 +1,5 @@
 {
-  "name": "auto-assign",
+  "name": "auto-reviewer-assign",
   "scripts": {
     "build": "ncc build src/index.ts"
   },
