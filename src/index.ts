@@ -71,7 +71,7 @@ async function run() {
     });
   } catch (error) {
     core.setFailed(
-      error instanceof Error ? error.message : JSON.stringify(error),
+      error instanceof Error ? error.message : JSON.stringify(error)
     );
   }
 }
@@ -96,7 +96,7 @@ function validateByIgnore(ignore: Ignore, title: string): boolean {
 
 function getReviewers(
   filenames: string[],
-  config: Config,
+  config: Config
 ): { users: string[]; teams: string[] } {
   const users = new Set<string>();
   const teams = new Set<string>();
@@ -114,7 +114,7 @@ function getReviewers(
       }
       reviewer.paths.some((path) => {
         const matchedFiles = filenames.filter(
-          minimatch.filter(path, { matchBase: true }),
+          minimatch.filter(path, { matchBase: true })
         );
         if (matchedFiles.length > 0) {
           if (reviewer.team) {
@@ -130,4 +130,7 @@ function getReviewers(
   return { users: Array.from(users), teams: Array.from(teams) };
 }
 
-run().then(() => {}, () => {});
+run().then(
+  () => {},
+  () => {}
+);
