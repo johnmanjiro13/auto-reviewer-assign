@@ -20,6 +20,8 @@ type Config = {
   ignore?: Ignore;
 };
 
+type Client = ReturnType<typeof github.getOctokit>;
+
 async function run() {
   try {
     if (github.context.eventName !== "pull_request") {
@@ -28,14 +30,13 @@ async function run() {
     }
 
     const token = core.getInput("token", { required: true });
-    const octokit = github.getOctokit(token);
+    const client = github.getOctokit(token);
     const dot = core.getBooleanInput("dot");
 
-    const { owner, repo, number } = github.context.issue;
-    const { data } = await octokit.rest.pulls.get({
-      owner,
-      repo,
-      pull_number: number,
+    const { data } = await client.rest.pulls.get({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      pull_number: github.context.issue.number,
     });
     if (data.state !== "open") {
       core.info("This pull request is not open");
@@ -49,26 +50,19 @@ async function run() {
       return;
     }
 
-    const {
-      data: { files },
-    } = await octokit.rest.repos.compareCommits({
-      owner,
-      repo,
-      base: data.base.ref,
-      head: data.head.ref,
-    });
-    if (!files) {
+    const changedFiles = await getChangedFiles(client);
+    if (changedFiles.length === 0) {
       core.info("No files changed");
       return;
     }
-    const filenames = files.map((file) => file.filename);
-    const { users, teams } = getReviewers(filenames, config, dot);
+    const { users, teams } = getReviewers(changedFiles, config, dot);
     core.info(`User reviewers: ${users.join(",")}`);
     core.info(`Team reviewers: ${teams.join(",")}`);
-    await octokit.rest.pulls.requestReviewers({
-      owner,
-      repo,
-      pull_number: number,
+
+    await client.rest.pulls.requestReviewers({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      pull_number: github.context.issue.number,
       reviewers: Array.from(users),
       team_reviewers: Array.from(teams),
     });
@@ -77,6 +71,17 @@ async function run() {
       error instanceof Error ? error.message : JSON.stringify(error)
     );
   }
+}
+
+async function getChangedFiles(client: Client): Promise<string[]> {
+  const req = client.rest.pulls.listFiles.endpoint.merge({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    pull_number: github.context.issue.number,
+  });
+  const res = await client.paginate(req);
+  const changedFiles = res.map((f: any) => f.filename as string); // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+  return changedFiles;
 }
 
 function validateByIgnore(ignore: Ignore, title: string): boolean {
