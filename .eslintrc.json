@@ -19,7 +19,6 @@
   ],
   "rules": {
     "import/prefer-default-export": "off",
-    "@typescript-eslint/quotes": ["error", "double"],
     "@typescript-eslint/no-use-before-define": "off"
   }
 }
