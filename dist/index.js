@@ -14050,8 +14050,9 @@ function run() {
                 core.setFailed("This action only supports pull_request event");
                 return;
             }
-            const token = core.getInput("token");
+            const token = core.getInput("token", { required: true });
             const octokit = github.getOctokit(token);
+            const dot = core.getBooleanInput("dot");
             const { owner, repo, number } = github.context.issue;
             const { data } = yield octokit.rest.pulls.get({
                 owner,
@@ -14064,6 +14065,7 @@ function run() {
             }
             const configFilePath = core.getInput("config-file-path");
             const config = (0, js_yaml_1.load)((0, fs_1.readFileSync)(configFilePath, "utf8"));
+            core.debug(`Config: ${JSON.stringify(config)}`);
             if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
                 return;
             }
@@ -14078,7 +14080,7 @@ function run() {
                 return;
             }
             const filenames = files.map((file) => file.filename);
-            const { users, teams } = getReviewers(filenames, config);
+            const { users, teams } = getReviewers(filenames, config, dot);
             core.info(`User reviewers: ${users.join(",")}`);
             core.info(`Team reviewers: ${teams.join(",")}`);
             yield octokit.rest.pulls.requestReviewers({
@@ -14111,7 +14113,7 @@ function validateByIgnore(ignore, title) {
     });
     return !isIgnoredByTitle;
 }
-function getReviewers(filenames, config) {
+function getReviewers(filenames, config, dot) {
     const users = new Set();
     const teams = new Set();
     config.reviewers
@@ -14128,7 +14130,8 @@ function getReviewers(filenames, config) {
             return;
         }
         reviewer.paths.some((path) => {
-            const matchedFiles = filenames.filter(minimatch_1.minimatch.filter(path, { matchBase: true }));
+            const matchedFiles = filenames.filter(minimatch_1.minimatch.filter(path, { matchBase: true, dot }));
+            core.debug(`Matched files: ${matchedFiles.join(",")}`);
             if (matchedFiles.length > 0) {
                 if (reviewer.team) {
                     teams.add(reviewer.name);

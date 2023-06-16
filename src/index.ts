@@ -27,8 +27,10 @@ async function run() {
       return;
     }
 
-    const token = core.getInput("token");
+    const token = core.getInput("token", { required: true });
     const octokit = github.getOctokit(token);
+    const dot = core.getBooleanInput("dot");
+
     const { owner, repo, number } = github.context.issue;
     const { data } = await octokit.rest.pulls.get({
       owner,
@@ -42,6 +44,7 @@ async function run() {
 
     const configFilePath = core.getInput("config-file-path");
     const config = load(readFileSync(configFilePath, "utf8")) as Config;
+    core.debug(`Config: ${JSON.stringify(config)}`);
     if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
       return;
     }
@@ -59,7 +62,7 @@ async function run() {
       return;
     }
     const filenames = files.map((file) => file.filename);
-    const { users, teams } = getReviewers(filenames, config);
+    const { users, teams } = getReviewers(filenames, config, dot);
     core.info(`User reviewers: ${users.join(",")}`);
     core.info(`Team reviewers: ${teams.join(",")}`);
     await octokit.rest.pulls.requestReviewers({
@@ -96,7 +99,8 @@ function validateByIgnore(ignore: Ignore, title: string): boolean {
 
 function getReviewers(
   filenames: string[],
-  config: Config
+  config: Config,
+  dot: boolean
 ): { users: string[]; teams: string[] } {
   const users = new Set<string>();
   const teams = new Set<string>();
@@ -114,8 +118,9 @@ function getReviewers(
       }
       reviewer.paths.some((path) => {
         const matchedFiles = filenames.filter(
-          minimatch.filter(path, { matchBase: true })
+          minimatch.filter(path, { matchBase: true, dot })
         );
+        core.debug(`Matched files: ${matchedFiles.join(",")}`);
         if (matchedFiles.length > 0) {
           if (reviewer.team) {
             teams.add(reviewer.name);

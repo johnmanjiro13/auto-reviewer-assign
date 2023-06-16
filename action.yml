@@ -8,6 +8,10 @@ inputs:
     description: 'The path to the configuration file'
     required: false
     default: '.github/auto-reviewer-assign.yml'
+  dot:
+    description: 'Allow to match filenames starting with a period'
+    required: false
+    default: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
