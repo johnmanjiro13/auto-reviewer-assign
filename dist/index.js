@@ -14051,13 +14051,12 @@ function run() {
                 return;
             }
             const token = core.getInput("token", { required: true });
-            const octokit = github.getOctokit(token);
+            const client = github.getOctokit(token);
             const dot = core.getBooleanInput("dot");
-            const { owner, repo, number } = github.context.issue;
-            const { data } = yield octokit.rest.pulls.get({
-                owner,
-                repo,
-                pull_number: number,
+            const { data } = yield client.rest.pulls.get({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                pull_number: github.context.issue.number,
             });
             if (data.state !== "open") {
                 core.info("This pull request is not open");
@@ -14069,24 +14068,18 @@ function run() {
             if (config.ignore && !validateByIgnore(config.ignore, data.title)) {
                 return;
             }
-            const { data: { files }, } = yield octokit.rest.repos.compareCommits({
-                owner,
-                repo,
-                base: data.base.ref,
-                head: data.head.ref,
-            });
-            if (!files) {
+            const changedFiles = yield getChangedFiles(client);
+            if (changedFiles.length === 0) {
                 core.info("No files changed");
                 return;
             }
-            const filenames = files.map((file) => file.filename);
-            const { users, teams } = getReviewers(filenames, config, dot);
+            const { users, teams } = getReviewers(changedFiles, config, dot);
             core.info(`User reviewers: ${users.join(",")}`);
             core.info(`Team reviewers: ${teams.join(",")}`);
-            yield octokit.rest.pulls.requestReviewers({
-                owner,
-                repo,
-                pull_number: number,
+            yield client.rest.pulls.requestReviewers({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                pull_number: github.context.issue.number,
                 reviewers: Array.from(users),
                 team_reviewers: Array.from(teams),
             });
@@ -14094,6 +14087,18 @@ function run() {
         catch (error) {
             core.setFailed(error instanceof Error ? error.message : JSON.stringify(error));
         }
+    });
+}
+function getChangedFiles(client) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const req = client.rest.pulls.listFiles.endpoint.merge({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            pull_number: github.context.issue.number,
+        });
+        const res = yield client.paginate(req);
+        const changedFiles = res.map((f) => f.filename); // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+        return changedFiles;
     });
 }
 function validateByIgnore(ignore, title) {
