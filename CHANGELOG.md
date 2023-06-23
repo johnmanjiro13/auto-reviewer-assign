@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.3](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.2...v0.1.3) - 2023-06-23
+- chore(deps): update node.js to v16.20.1 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/14
+
 ## [v0.1.2](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.1...v0.1.2) - 2023-06-21
 - feat: Allow to match filenames with a period if paths have wildcards by @johnmanjiro13 in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/10
 - chore(deps): update node.js to v16.20.1 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/12
