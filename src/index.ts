@@ -68,7 +68,7 @@ async function run() {
     });
   } catch (error) {
     core.setFailed(
-      error instanceof Error ? error.message : JSON.stringify(error)
+      error instanceof Error ? error.message : JSON.stringify(error),
     );
   }
 }
@@ -105,7 +105,7 @@ function validateByIgnore(ignore: Ignore, title: string): boolean {
 function getReviewers(
   filenames: string[],
   config: Config,
-  dot: boolean
+  dot: boolean,
 ): { users: string[]; teams: string[] } {
   const users = new Set<string>();
   const teams = new Set<string>();
@@ -123,7 +123,7 @@ function getReviewers(
       }
       reviewer.paths.some((path) => {
         const matchedFiles = filenames.filter(
-          minimatch.filter(path, { matchBase: true, dot })
+          minimatch.filter(path, { matchBase: true, dot }),
         );
         core.debug(`Matched files: ${matchedFiles.join(",")}`);
         if (matchedFiles.length > 0) {
@@ -142,5 +142,5 @@ function getReviewers(
 
 run().then(
   () => {},
-  () => {}
+  () => {},
 );
