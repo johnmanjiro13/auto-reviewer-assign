@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.4](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.3...v0.1.4) - 2023-07-13
+- chore(deps): update dependency prettier to v3 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/17
+
 ## [v0.1.3](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.2...v0.1.3) - 2023-06-23
 - chore(deps): update node.js to v16.20.1 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/14
 
