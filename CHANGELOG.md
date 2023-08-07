@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.5](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.4...v0.1.5) - 2023-08-07
+- chore(deps): update dependency eslint-config-prettier to v9 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/21
+
 ## [v0.1.4](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.3...v0.1.4) - 2023-07-13
 - chore(deps): update dependency prettier to v3 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/17
 
