@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.6](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.5...v0.1.6) - 2023-10-03
+- chore(deps): update actions/checkout action to v4 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/24
+
 ## [v0.1.5](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.4...v0.1.5) - 2023-08-07
 - chore(deps): update dependency eslint-config-prettier to v9 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/21
 
