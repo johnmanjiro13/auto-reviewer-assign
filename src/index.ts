@@ -80,7 +80,8 @@ async function getChangedFiles(client: Client): Promise<string[]> {
     pull_number: github.context.issue.number,
   });
   const res = await client.paginate(req);
-  const changedFiles = res.map((f: any) => f.filename as string); // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
+  const changedFiles = res.map((f: any) => f.filename as string);
   return changedFiles;
 }
 

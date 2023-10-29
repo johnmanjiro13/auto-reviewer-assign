@@ -34219,7 +34219,8 @@ function getChangedFiles(client) {
             pull_number: github.context.issue.number,
         });
         const res = yield client.paginate(req);
-        const changedFiles = res.map((f) => f.filename); // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-member-access
+        const changedFiles = res.map((f) => f.filename);
         return changedFiles;
     });
 }
