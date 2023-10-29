@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.2.0](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.6...v0.2.0) - 2023-10-29
+- upgrade: Node 20 by @johnmanjiro13 in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/28
+- chore(deps): update dependency @vercel/ncc to ^0.38.0 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/25
+- fix(deps): update dependency @actions/github to v6 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/27
+- chore(deps): update actions/setup-node action to v4 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/31
+- Update eslint packages by @johnmanjiro13 in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/32
+
 ## [v0.1.6](https://github.com/johnmanjiro13/auto-reviewer-assign/compare/v0.1.5...v0.1.6) - 2023-10-03
 - chore(deps): update actions/checkout action to v4 by @renovate in https://github.com/johnmanjiro13/auto-reviewer-assign/pull/24
 
