@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: johnmanjiro13/auto-reviewer-assign@v0.1.6
+      - uses: johnmanjiro13/auto-reviewer-assign@v0.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
